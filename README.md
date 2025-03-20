@@ -2,7 +2,9 @@
 
 ## Overview
 
-This is a Python-based Snake game using **Pygame**, featuring an AI-controlled snake that uses **Breadth-First Search (BFS)** to find the shortest path to food. The game includes:
+![Snake AI Demo](https://github.com/Ham7a8/AI-snake-game/blob/main/Recording.gif)
+
+Python-based Snake game using **Pygame**, featuring an AI-controlled snake that uses **Breadth-First Search (BFS)** to find the shortest path to food. The game includes:
 
 - Grid-based movement  
 - AI decision-making for navigation  
