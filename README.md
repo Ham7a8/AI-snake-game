@@ -35,7 +35,7 @@ python snake_ai.py
 ```
 
 
-### Why BFS?
+## Why BFS?
 - Guaranteed Shortest Path: BFS explores nodes level by level.
 - Deterministic: The AI follows an optimal and predictable path.
 - Simple to Implement: Unlike A* (which requires heuristics), BFS is straightforward.
