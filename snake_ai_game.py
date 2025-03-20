@@ -4,15 +4,13 @@ import time
 import numpy as np
 from collections import deque
 
-# Initialize pygame
 pygame.init()
 
-# Constants
 WIDTH, HEIGHT = 600, 600
-GRID_SIZE = 40  # Increased from 20 to 40 to make grid cells larger and fewer
+GRID_SIZE = 40  
 GRID_WIDTH = WIDTH // GRID_SIZE
 GRID_HEIGHT = HEIGHT // GRID_SIZE
-FPS = 80  # Increased from 10 to 30 for faster gameplay
+FPS = 80  
 
 # Colors
 BLACK = (0, 0, 0)
@@ -20,10 +18,10 @@ WHITE = (255, 255, 255)
 GREEN = (0, 255, 0)
 RED = (255, 0, 0)
 BLUE = (0, 0, 255)
-YELLOW = (255, 255, 0)  # For path visualization
-PURPLE = (128, 0, 128)  # For visited cells
+YELLOW = (255, 255, 0)  
+PURPLE = (128, 0, 128)  
 
-# Directions
+
 UP = (0, -1)
 DOWN = (0, 1)
 LEFT = (-1, 0)
@@ -64,7 +62,6 @@ class Snake:
         self.score += 1
     
     def change_direction(self, direction):
-        # Prevent 180-degree turns
         if (direction[0] * -1, direction[1] * -1) != self.direction:
             self.direction = direction
 
@@ -91,13 +88,12 @@ class SnakeAI:
         self.visited = set()
     
     def get_next_move(self):
-        # Find the closest food
+        
         head = self.snake.get_head_position()
         closest_food = None
         closest_distance = float('inf')
         
         for food in self.foods:
-            # Manhattan distance
             distance = abs(head[0] - food.position[0]) + abs(head[1] - food.position[1])
             if distance < closest_distance:
                 closest_distance = distance
@@ -108,19 +104,15 @@ class SnakeAI:
             
         food_pos = closest_food.position
         
-        # Reset visualization data
         self.path = []
         self.visited = set([head])
         
-        # Use BFS to find path to food
-        queue = deque([(head, [])])  # (position, path)
+        queue = deque([(head, [])]) 
         
         while queue:
             pos, path = queue.popleft()
             
-            # Check all four directions
             for direction in [UP, DOWN, LEFT, RIGHT]:
-                # Skip if it's a 180-degree turn from current direction
                 if path and (direction[0] * -1, direction[1] * -1) == path[-1]:
                     continue
                 
@@ -128,10 +120,8 @@ class SnakeAI:
                 new_y = (pos[1] + direction[1]) % GRID_HEIGHT
                 new_pos = (new_x, new_y)
                 
-                # If we found the food
                 if new_pos == food_pos:
                     new_path = path + [direction]
-                    # Store the full path for visualization
                     current = head
                     self.path = [head]
                     for dir in new_path:
@@ -139,22 +129,18 @@ class SnakeAI:
                                    (current[1] + dir[1]) % GRID_HEIGHT)
                         self.path.append(current)
                     
-                    if not path:  # If we're adjacent to food
+                    if not path:  
                         return direction
                     else:
-                        return path[0]  # Return first step in path
+                        return path[0] 
                 
-                # If position is valid (not occupied by snake body)
                 if new_pos not in self.visited and new_pos not in self.snake.positions[1:]:
                     self.visited.add(new_pos)
                     new_path = path + [direction]
                     queue.append((new_pos, new_path))
         
-        # If no path to food, try to avoid collision
-        # Choose a direction that doesn't lead to immediate death
         safe_directions = []
         for direction in [UP, DOWN, LEFT, RIGHT]:
-            # Skip if it's a 180-degree turn from current direction
             if (direction[0] * -1, direction[1] * -1) == self.snake.direction:
                 continue
                 
@@ -168,7 +154,6 @@ class SnakeAI:
         if safe_directions:
             return random.choice(safe_directions)
         
-        # If no safe direction, just continue in current direction
         return self.snake.direction
 
 def draw_grid(surface):
@@ -184,10 +169,8 @@ def main():
     
     snake = Snake()
     
-    # Create multiple food items
-    foods = [Food() for _ in range(3)]  # 3 food items
+    foods = [Food() for _ in range(3)]  
     
-    # Make sure foods don't spawn on each other
     for i, food in enumerate(foods):
         for j, other_food in enumerate(foods):
             if i != j and food.position == other_food.position:
@@ -206,54 +189,45 @@ def main():
                 if event.key == pygame.K_ESCAPE:
                     running = False
                 elif event.key == pygame.K_SPACE:
-                    # Reset game
                     snake.reset()
                     for food in foods:
                         food.randomize_position()
         
-        # Get AI's next move
         next_direction = ai.get_next_move()
         snake.change_direction(next_direction)
         
-        # Update snake
         if not snake.update():
-            # Game over, reset
             for food in foods:
                 food.randomize_position()
         
-        # Check if snake ate any food
         for food in foods:
             if snake.get_head_position() == food.position:
                 snake.grow()
                 food.randomize_position()
-                # Make sure food doesn't spawn on snake or other food
                 while food.position in snake.positions or any(food.position == f.position for f in foods if f != food):
                     food.randomize_position()
         
-        # Draw everything
         screen.fill(BLACK)
         
-        # Draw path (removed the purple visited cells visualization)
         for pos in ai.path:
             if pos not in snake.positions and pos not in [food.position for food in foods]:
                 rect = pygame.Rect((pos[0] * GRID_SIZE, pos[1] * GRID_SIZE),
                                   (GRID_SIZE, GRID_SIZE))
-                pygame.draw.rect(screen, YELLOW, rect, 1)  # Outline only
+                pygame.draw.rect(screen, YELLOW, rect, 1)  
         
-        # Draw snake
+        
         for i, pos in enumerate(snake.positions):
             rect = pygame.Rect((pos[0] * GRID_SIZE, pos[1] * GRID_SIZE),
                               (GRID_SIZE, GRID_SIZE))
-            if i == 0:  # Head
+            if i == 0:  
                 pygame.draw.rect(screen, BLUE, rect)
-            else:  # Body
+            else:  
                 pygame.draw.rect(screen, snake.color, rect)
         
-        # Draw food
         for food in foods:
             food.draw(screen)
         
-        # Draw score
+        
         score_text = font.render(f'Score: {snake.score}', True, WHITE)
         screen.blit(score_text, (5, 5))
         
